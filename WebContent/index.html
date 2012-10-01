@@ -1,0 +1,57 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=ISO-8859-1">
+    <title>21st Century Integration Testing</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.1/jquery.min.js"></script>
+    <script src="javascripts/jsrender.js"></script>
+    <!--[if lt IE 9]><script src="javascripts/ltie9.js" type="text/javascript" charset="UTF-8"></script><![endif]-->
+    <script src="javascripts/capp.js"></script>
+    <link rel="stylesheet" type="text/css" href="style.css" />
+</head>
+<body>
+    <div id="errorcontainer"></div>
+    <div id="screenOverlay"></div>
+    <div id="popup">&nbsp;<a id="popupClose" onClick="capp.hidePopup()">Close</a><pre id="popupText"></pre></div>
+    <div id="container"></div>
+    <script id="projectTpl" type="text/x-jsrender">
+        <h1>{{>name}}</h1>
+        <h6>Last run: {{>dateExecuted}}</h6>
+        {{for layers}}
+            <div id="{{>#name}}">
+            <h2>{{:name}}</h2>
+            <span id="layer">
+            {{for containers tmpl="#containerTpl"/}}
+            </span>
+            </div>
+        {{/for}}
+    </script>
+
+    <script id="containerTpl" type="text/x-jsrender">
+        <div id="testSystem" class="{{>~getTestSummaryClass(testSummary)}}" data-template="{{>system}}"><h3>{{>name}}</h3>
+        <h6>{{if testSummary.tests tmpl="#testSummary" /}}</h6>
+        {{for tests}}
+            <div id="testResult" class="{{>result}}" data-outcome-id="{{>id}}" onClick="capp.showTestOutput(this)">{{>testName}}</div>
+        {{/for}}
+        </div>
+    </script>
+
+    <script id="testSummary" type="text/x-jsrender">
+        <a id="showTestToggle" data-mode="plus" onClick="capp.showTestToggle(this)">+</a> {{>testSummary.tests}} tests in {{>testSummary.totalDuration}}ms
+    </script>
+
+	<script type="text/javascript">
+		var projectKey = "MyApp1";
+		function loadProjectData() {
+			capp.getProjectData(projectKey, function(data) {
+				console.log(data);
+				$("#container").html(function() {
+					return $("script#projectTpl").render(data);
+				});
+			});
+		}
+		loadProjectData();
+		setInterval(loadProjectData, 60000);
+	</script>
+</body>
+</html>
