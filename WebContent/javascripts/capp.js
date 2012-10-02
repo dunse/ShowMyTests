@@ -33,22 +33,25 @@ var capp = {
 			}
 		},
 
-		getProjectData: function(projectKey, callback) {
+		getProjectData: function(projectKey) {
 			var self = this;
+			var d = $.Deferred();
+
 			self.initErrorHandler();
 			$.when(self.getLastRun(projectKey)).done(function(runData) {
 				var testRun = runData.testRuns[0];
 				$.when(self.getTestOutcomes(testRun.id)).done(function(outcomes) {
-					callback(self.getFormatProjectData(testRun, outcomes.testOutcomes));
+					d.resolve(self.getFormatProjectData(testRun, outcomes.testOutcomes));
 				});
 			});
+			return d.promise();
 		},
 
 		showTestOutput: function(obj) {
 			var self = this;
 			outcomeId = $(obj).attr("data-outcome-id");
 			if (outcomeId) {
-				capp.getTestOutput(outcomeId, function(output) {
+				$.when(capp.getTestOutput(outcomeId)).done(function(output) {
 					$("pre#popupText").append(document.createTextNode(output));
 					self.showPopup();
 				});
@@ -233,17 +236,21 @@ var capp = {
 			return testSummary;
 		},
 
-		getTestOutput: function (testId, callback) {
+		getTestOutput: function (testId) {
 			var self = this;
+			var d = $.Deferred();
+
 			self.initErrorHandler();
 
-			$.when(this.getTestOutputCall(testId)).done(function(output) {
-				callback(output);
+			$.when(self.getTestOutputCall(testId)).done(function(output) {
+				d.resolve(output);
 			});
 
+			return d.promise();
 		},
 
 		getTestOutputCall: function(id) {
+			var self = this;
 			// Get all test runs for all environments
 			return $.ajax(self.config.getTestOutput(id), {
 				timeout: 3000,

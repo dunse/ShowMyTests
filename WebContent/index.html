@@ -43,8 +43,7 @@
 	<script type="text/javascript">
 		var projectKey = "MyApp1";
 		function loadProjectData() {
-			capp.getProjectData(projectKey, function(data) {
-				console.log(data);
+			$.when(capp.getProjectData(projectKey)).done(function(data) {
 				$("#container").html(function() {
 					return $("script#projectTpl").render(data);
 				});
