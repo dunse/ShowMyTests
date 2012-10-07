@@ -40,6 +40,12 @@ var capp = {
 			self.initErrorHandler();
 			$.when(self.getLastRun(projectKey)).done(function(runData) {
 				var testRun = runData.testRuns[0];
+				// Check if there was a test run
+				console.log(testRun);
+				if (!testRun) {
+					$("div#errorcontainer").html("No TestRuns found");
+					return;
+				}
 				$.when(self.getTestOutcomes(testRun.id)).done(function(outcomes) {
 					d.resolve(self.getFormatProjectData(testRun, outcomes.testOutcomes));
 				});
@@ -105,12 +111,13 @@ var capp = {
 					function(e, x, settings, exception) {
 						var message;
 						var statusErrorMap = {
+								'200' : "No TestRuns found", // Workaround for when project does not exist
 								'400' : "Server understood the request but request content was invalid.",
 								'401' : "Unauthorised access.",
 								'403' : "Forbidden resouce can't be accessed",
 								'404' : "Page not found",
 								'500' : "Internal Server Error.",
-								'503' : "Service Unavailable"
+								'503' : "Cuanto starting..." // Could be that Cuanto did not start at all..
 						};
 						if (x.status) {
 							message =statusErrorMap[x.status];
