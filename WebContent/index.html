@@ -57,6 +57,7 @@
 	<script type="text/javascript">
 		var projectKey = "MyApp1";
 		function loadProjectData() {
+			$("#errorcontainer").empty();
 			$.when(capp.getProjectData(projectKey)).done(function(data) {
 				$("#container").html(function() {
 					return $("script#projectTpl").render(data);
@@ -65,10 +66,11 @@
 				$.plot($("#runGraph"), data.testSummary.allRunGraph,  {
 					series: {
 						stack: true,
-						lines: {show: true, fill: true, steps: true, lineWidth: 0 }
+						lines: {show: true, fill: true, steps: false, lineWidth: 0 },
+						bars: {show: true, lineWidth: 0}
                     },
-					xaxis : { mode : "time", minTickSize: [15, "minute"] },
-					yaxis: { max: 10 },
+					xaxis : { mode : "time", timeformat: "%H:%M" },
+					yaxis: { max: 10, tickSize: 2 },
 					grid : {
 						color : "#ffffff",
 						backgroundColor: { colors: [ "#000000", "#ffffff" ] }
@@ -92,7 +94,7 @@
 			});
 		}
 		loadProjectData();
-		setInterval(loadProjectData, 60000);
+		setInterval(loadProjectData, 30000);
 	</script>
 </body>
 </html>
