@@ -30,7 +30,9 @@ var capp = {
 			outcomes: "/cuanto/api/getTestOutcomes",
 			getTestOutput: function(id) {
 				return "/cuanto/api/getTestOutput/" + id;
-			}
+			},
+			getAllTestRunStatsGraph: "/cuanto/api/getAllTestRunStatsGraph",
+			getAllFailedTestCaseHistoryGraph: "/cuanto/api/getAllFailedTestCaseHistoryGraph"
 		},
 
 		getProjectData: function(projectKey) {
@@ -46,8 +48,12 @@ var capp = {
 					$("div#errorcontainer").html("No TestRuns found");
 					return;
 				}
-				$.when(self.getTestOutcomes(testRun.id)).done(function(outcomes) {
-					d.resolve(self.getFormatProjectData(testRun, outcomes.testOutcomes));
+				$.when(self.getRunGraph(projectKey), self.getFailedGraph(projectKey)).done(function(runGraphResp, failedGraph) {
+					console.log(runGraphResp);
+					var runGraph = [runGraphResp[0][2], runGraphResp[0][3], runGraphResp[0][1]];
+					$.when(self.getTestOutcomes(testRun.id)).done(function(outcomes) {
+						d.resolve(self.getFormatProjectData(testRun, outcomes.testOutcomes, runGraph, failedGraph[0]));
+					});
 				});
 			});
 			return d.promise();
@@ -105,6 +111,28 @@ var capp = {
 			});
 		},
 
+		getRunGraph: function(projectKey) {
+			return $.ajax(this.config.getAllTestRunStatsGraph, {
+				timeout: 5000,
+				dataType: "json",
+				data: {
+					projectKey: projectKey,
+					sort: "dateExecuted",
+					order: "asc"
+				}
+			});
+		},
+
+		getFailedGraph: function(projectKey) {
+			return $.ajax(this.config.getAllFailedTestCaseHistoryGraph, {
+				timeout: 5000,
+				dataType: "json",
+				data: {
+					projectKey: projectKey
+				}
+			});
+		},
+
 		// Generic Error handler
 		initErrorHandler: function() {
 			$("div#errorcontainer").ajaxError(
@@ -138,7 +166,7 @@ var capp = {
 					});
 		},
 
-		getFormatProjectData: function(testRun, outcomes) {
+		getFormatProjectData: function(testRun, outcomes, allRunGraph, allFailedGraph) {
 			return {
 				name: testRun.projectName,
 				dateExecuted: testRun.dateExecuted,
@@ -148,7 +176,9 @@ var capp = {
 					passed: testRun.passed,
 					failed: testRun.failed,
 					skipped: testRun.skipped,
-					totalDuration: testRun.totalDuration
+					totalDuration: testRun.totalDuration,
+					allRunGraph: allRunGraph,
+					allFailedGraph: allFailedGraph
 				},
 				layers: this.getSortedTestResults(outcomes)
 			};

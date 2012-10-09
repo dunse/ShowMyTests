@@ -119,3 +119,20 @@ a#showTestToggle {
 	border: 1px solid #ffffff;
 	cursor: pointer;
 }
+
+div .graph {
+	float: left;
+	padding: 10px;
+	margin: 10px;
+	text-decoration:underline;
+}
+
+div#runGraph {
+	width: 600px;
+	height: 150px;
+}
+
+div#blameGraph {
+    width: 150px;
+    height: 150px;
+}

@@ -7,6 +7,11 @@
     <script src="javascripts/jsrender.js"></script>
     <!--[if lt IE 9]><script src="javascripts/ltie9.js" type="text/javascript" charset="UTF-8"></script><![endif]-->
     <script src="javascripts/capp.js"></script>
+    <!--[if lte IE 8]><script src="javascripts/flot/excanvas.min.js" type="text/javascript" charset="UTF-8"></script><![endif]-->
+    <script src="javascripts/flot/jquery.flot.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="javascripts/flot/jquery.flot.stack.min.js" type="text/javascript" charset="UTF-8"></script>
+    <script src="javascripts/flot/jquery.flot.pie.min.js" type="text/javascript" charset="UTF-8"></script>
+
     <link rel="stylesheet" type="text/css" href="style.css" />
 </head>
 <body>
@@ -17,8 +22,17 @@
     <script id="projectTpl" type="text/x-jsrender">
         <h1>{{>name}}</h1>
         <h6>Last run: {{>dateExecuted}}</h6>
+        <div style="display: inline-block;">
+        <div class="graph">Run Chart<br/><br/>
+            <div id="runGraph"></div>
+        </div>
+        <div class="graph">Blame Chart<br/><br/>
+            <div id="blameGraph"></div>
+        </div>
+        </div>
+        
         {{for layers}}
-            <div id="{{>#name}}">
+            <div id="{{:name}}">
             <h2>{{:name}}</h2>
             <span id="layer">
             {{for containers tmpl="#containerTpl"/}}
@@ -47,6 +61,34 @@
 				$("#container").html(function() {
 					return $("script#projectTpl").render(data);
 				});
+				console.log(data.testSummary);
+				$.plot($("#runGraph"), data.testSummary.allRunGraph,  {
+					series: {
+						stack: true,
+						lines: {show: true, fill: true, steps: true, lineWidth: 0 }
+                    },
+					xaxis : { mode : "time", minTickSize: [15, "minute"] },
+					yaxis: { max: 10 },
+					grid : {
+						color : "#ffffff",
+						backgroundColor: { colors: [ "#000000", "#ffffff" ] }
+					},
+                    legend: { position: "nw", backgroundColor: "#aaaaaa" },
+                    colors: [ "#ff0000", "#ffffff", "#00ff00"]
+				});
+                $.plot($("#blameGraph"), data.testSummary.allFailedGraph,  {
+                	series: {
+                        pie: {
+                            show: true,
+                            startAngle: 1
+                        }
+                    },
+                    grid : {
+                        color : "#ffffff",
+                        backgroundColor: { colors: [ "#000000", "#ffffff" ] }
+                    },
+                    legend: { position: "nw", backgroundColor: "#aaaaaa" }
+                });
 			});
 		}
 		loadProjectData();
